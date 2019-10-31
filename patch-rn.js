@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { writeFile, readFile, readdir } = require('fs');
-const { promisify } = require('util');
+const {writeFile, readFile, readdir} = require('fs');
+const {promisify} = require('util');
 const path = require('path');
 
 const folder = 'node_modules/react-native/Libraries/Renderer/implementations/';
@@ -12,8 +12,13 @@ const pattern = new RegExp(
 
 const patchFile = async (file) => {
   const content = (await promisify(readFile)(file)).toString();
-  const patched = content.replace(pattern, '');
-
+  const patched = content.replace(pattern, () => {
+    const fileRegEx = new RegExp('dev');
+    if (fileRegEx.test(file))
+      return '';
+    else
+      return '{}';
+  });
   await promisify(writeFile)(file, patched);
 };
 
